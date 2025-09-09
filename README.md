@@ -6,6 +6,7 @@ A retro-styled roguelike deck-builder web game set in Phoenix, Arizona. Follow P
 
 - **Retro Aesthetic**: Oregon Trail-inspired text UI with pixel-perfect graphics
 - **Deck-Building**: Collect and manage cards across four categories (Timecraft, Mind/Resolve, Social, Physical)
+- **Combat System**: Turn-based card combat with enemy intent telegraphing
 - **Roguelike Elements**: Procedural events, permadeath with meta-progression
 - **Narrative Branching**: Multiple endings based on choices across timeline loops
 - **Phoenix Setting**: Explore real-world locations (Roosevelt Row, South Mountain, Tempe Town Lake)
@@ -85,9 +86,10 @@ podman-compose up
 ```
 src/
 ├── game/           # Game configuration and core setup
-├── scenes/         # Phaser scenes (Boot, Title, Hub, etc.)
+├── scenes/         # Phaser scenes (Boot, Title, Hub, Combat, etc.)
 ├── entities/       # Game entities (Player, Card, NPC, etc.)
 ├── systems/        # Game systems (Combat, Events, UI, etc.)
+├── data/           # Game data (Enemy configurations, card data, etc.)
 ├── utils/          # Utility functions and helpers
 ├── types/          # TypeScript type definitions
 └── assets/         # Game assets (images, audio, data)
@@ -140,6 +142,7 @@ The project is configured for deployment to **Zeabur.com** using container-based
 - ✅ **Phase 1**: Specification Complete
 - ✅ **Phase 2**: Planning Complete  
 - 🚧 **Phase 3**: Development In Progress
+  - ✅ Task 6: Combat Scene Implementation Complete
 - ⏳ **Phase 4**: Testing & Deployment
 
 ## 📝 License
