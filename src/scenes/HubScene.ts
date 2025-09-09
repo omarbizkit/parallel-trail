@@ -29,17 +29,11 @@ export class HubScene extends Scene {
     this.hudSystem.initialize(this);
 
     // Hospital Hub title with typewriter effect
-    const hubTitle = new TypewriterText(
-      this,
-      width / 2,
-      50,
-      'HOSPITAL HUB',
-      {
-        fontSize: '32px',
-        color: this.uiSystem.getColorPalette().primary,
-        align: 'center',
-      }
-    );
+    const hubTitle = new TypewriterText(this, width / 2, 50, 'HOSPITAL HUB', {
+      fontSize: '32px',
+      color: this.uiSystem.getColorPalette().primary,
+      align: 'center',
+    });
     hubTitle.setOrigin(0.5, 0.5);
 
     // Hub description with typewriter effect
