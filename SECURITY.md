@@ -14,7 +14,7 @@ This document outlines the security measures and development practices implement
 |------|---------|---------|
 | **Required Status Checks** | `validate` | Ensures code quality before merge |
 | **Strict Status Checks** | ✅ Enabled | Branch must be up-to-date with main |
-| **Required PR Reviews** | 1 approval | Code review requirement |
+| **Required PR Reviews** | 0 approvals | Solo developer friendly |
 | **Dismiss Stale Reviews** | ✅ Enabled | New commits require fresh review |
 | **Force Push Protection** | ✅ BLOCKED | Prevents history rewriting |
 | **Branch Deletion Protection** | ✅ BLOCKED | Prevents accidental loss |

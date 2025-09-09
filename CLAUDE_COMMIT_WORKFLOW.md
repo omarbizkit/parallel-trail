@@ -153,7 +153,7 @@ The main branch is protected with the following security settings:
 - ✅ **Strict mode**: Branch must be up-to-date before merging
 
 ### Required Pull Request Reviews
-- ✅ **1 approving review** required before merge
+- ✅ **0 approving reviews** required (solo developer friendly)
 - ✅ **Stale review dismissal** when new commits are pushed
 - ✅ **No code owner requirement** (flexible for development)
 

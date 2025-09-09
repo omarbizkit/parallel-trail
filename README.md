@@ -97,7 +97,7 @@ src/
 
 ### 🛡️ Branch Protection (Applied)
 The main branch is protected with enterprise-grade security:
-- **Required PR Reviews**: 1 approving review required
+- **Required PR Reviews**: 0 approvals required (solo developer friendly)
 - **Status Checks**: `npm run validate` must pass before merge
 - **Force Push Protection**: Prevents history rewriting
 - **Branch Deletion Protection**: Prevents accidental loss
