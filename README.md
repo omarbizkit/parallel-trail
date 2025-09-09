@@ -95,11 +95,23 @@ src/
 
 ## 🎯 Development Workflow
 
+### 🛡️ Branch Protection (Applied)
+The main branch is protected with enterprise-grade security:
+- **Required PR Reviews**: 1 approving review required
+- **Status Checks**: `npm run validate` must pass before merge
+- **Force Push Protection**: Prevents history rewriting
+- **Branch Deletion Protection**: Prevents accidental loss
+
+### 📋 Standard Workflow
 1. **Feature Branches**: Create feature branches from `main`
 2. **Issue Tracking**: Reference GitHub issues in commits
 3. **Code Quality**: All code must pass `npm run validate`
-4. **Git Hooks**: Pre-commit hooks run validation automatically
+4. **Pull Requests**: Submit PRs for review before merging
 5. **Testing**: Maintain >80% test coverage for critical systems
+
+### 🚀 Task-Based Development
+Follow the established pattern: `00X-task-name` branches for systematic development.
+See [CLAUDE_COMMIT_WORKFLOW.md](CLAUDE_COMMIT_WORKFLOW.md) for detailed workflow instructions.
 
 ## 🧪 Testing
 
