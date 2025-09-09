@@ -1,3 +1,6 @@
+import { DeckSystem } from './DeckSystem';
+import type { CardPlayResult } from '../types/CardTypes';
+
 export interface PlayerData {
   health: number;
   maxHealth: number;
@@ -15,15 +18,18 @@ export interface GameProgress {
   gameFlags: Record<string, boolean>;
   visitedLocations: string[];
   completedEvents: string[];
+  deckSystem?: Record<string, unknown>; // Serialized deck state for save/load
 }
 
 export class GameState {
   private static instance: GameState;
   private gameProgress: GameProgress;
+  private deckSystem: DeckSystem;
   private saveKey = 'parallel-trail-save';
 
   private constructor() {
     this.gameProgress = this.createDefaultGameState();
+    this.deckSystem = DeckSystem.createStarterDeck();
   }
 
   public static getInstance(): GameState {
@@ -132,5 +138,31 @@ export class GameState {
 
   public getGameProgress(): GameProgress {
     return { ...this.gameProgress };
+  }
+
+  public getDeckSystem(): DeckSystem {
+    return this.deckSystem;
+  }
+
+  public drawCards(count: number = 1): void {
+    this.deckSystem.drawCards(count);
+  }
+
+  public playCard(cardId: string): CardPlayResult {
+    const playerData = this.getPlayerData();
+    const result = this.deckSystem.playCard(cardId, playerData.timeEnergy);
+
+    if (result.success) {
+      // Deduct energy cost
+      this.setPlayerData({
+        timeEnergy: playerData.timeEnergy - result.energySpent,
+      });
+    }
+
+    return result;
+  }
+
+  public resetDeck(): void {
+    this.deckSystem.resetDeck();
   }
 }
