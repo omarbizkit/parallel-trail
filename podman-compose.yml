@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Development service
+  parallel-trail-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: parallel-trail-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0
+    restart: unless-stopped
+
+  # Production service
+  parallel-trail-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: parallel-trail-prod
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  # Optional: Nginx proxy for production (if needed)
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: parallel-trail-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - parallel-trail-prod
+    restart: unless-stopped
+    profiles:
+      - proxy
