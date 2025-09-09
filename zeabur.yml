@@ -1,0 +1,51 @@
+name: parallel-trail
+description: "Parallel Trail - Retro Roguelike Deck-Builder"
+
+# Service configuration
+services:
+  - name: web
+    template: PREBUILT
+    image: ghcr.io/omarbizkit/parallel-trail:latest
+    ports:
+      - port: 8080
+        expose: true
+    env:
+      NODE_ENV: production
+      PORT: 8080
+    
+# Environment variables
+environment:
+  production:
+    NODE_ENV: production
+    PORT: 8080
+    
+  staging:
+    NODE_ENV: staging
+    PORT: 8080
+
+# Deployment configuration
+deploy:
+  strategy: rolling
+  replicas: 1
+  health_check:
+    path: /
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    
+# Resource limits
+resources:
+  limits:
+    memory: 512Mi
+    cpu: 0.5
+  requests:
+    memory: 256Mi
+    cpu: 0.2
+
+# Auto-scaling (optional)
+autoscaling:
+  enabled: true
+  min_replicas: 1
+  max_replicas: 3
+  target_cpu_utilization: 70
+  target_memory_utilization: 80
