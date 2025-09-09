@@ -1,8 +1,12 @@
 import { Scene } from 'phaser';
+import { GameState } from '../systems/GameState';
 
 export class TitleScene extends Scene {
+  private gameState: GameState;
+
   constructor() {
     super({ key: 'TitleScene' });
+    this.gameState = GameState.getInstance();
   }
 
   create(): void {
@@ -30,9 +34,10 @@ export class TitleScene extends Scene {
     subtitleText.setOrigin(0.5, 0.5);
 
     // Menu options
+    const hasSaveGame = this.gameState.hasSaveGame();
     const menuOptions = [
       { text: 'Start New Game', action: () => this.startNewGame() },
-      { text: 'Continue', action: () => this.continueGame(), enabled: false },
+      { text: 'Continue', action: () => this.continueGame(), enabled: hasSaveGame },
       { text: 'Settings', action: () => this.openSettings() },
       { text: 'Credits', action: () => this.showCredits() },
     ];
@@ -74,12 +79,19 @@ export class TitleScene extends Scene {
   }
 
   startNewGame(): void {
+    this.gameState.resetGame();
+    this.gameState.setCurrentScene('HubScene');
     this.scene.start('HubScene');
   }
 
   continueGame(): void {
-    // TODO: Implement save game loading
-    console.log('Continue game - not implemented yet');
+    if (this.gameState.loadGame()) {
+      const savedScene = this.gameState.getCurrentScene();
+      this.scene.start(savedScene);
+    } else {
+      console.error('Failed to load saved game');
+      // Could show an error message to the user here
+    }
   }
 
   openSettings(): void {

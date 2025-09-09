@@ -1,8 +1,19 @@
 import { Scene } from 'phaser';
 
+interface LoadingState {
+  assetsLoaded: boolean;
+  transitionReady: boolean;
+}
+
 export class BootScene extends Scene {
+  private loadingState: LoadingState;
+  
   constructor() {
     super({ key: 'BootScene' });
+    this.loadingState = {
+      assetsLoaded: false,
+      transitionReady: false,
+    };
   }
 
   preload(): void {
@@ -42,10 +53,37 @@ export class BootScene extends Scene {
     });
 
     // Load assets here
-    // this.load.image('logo', 'assets/images/logo.png');
+    this.load.image('logo', 'src/assets/images/logo.png');
+    
+    // Load UI assets
+    this.load.image('pixel', 'src/assets/images/pixel.png');
+    
+    // TODO: Load additional assets as they become available
+    // this.load.image('background', 'src/assets/images/background.png');
+    // this.load.image('card-back', 'src/assets/images/card-back.png');
+    // this.load.audio('title-theme', 'src/assets/audio/title-theme.mp3');
   }
 
   create(): void {
-    this.scene.start('TitleScene');
+    this.loadingState.assetsLoaded = true;
+    
+    // Add a small delay for better user experience
+    this.time.delayedCall(500, () => {
+      this.loadingState.transitionReady = true;
+      this.transitionToTitleScene();
+    });
+  }
+
+  transitionToTitleScene(): void {
+    if (!this.loadingState.transitionReady) {
+      return;
+    }
+
+    // Add fade out effect
+    this.cameras.main.fadeOut(500, 0, 0, 0);
+    
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('TitleScene');
+    });
   }
 }
