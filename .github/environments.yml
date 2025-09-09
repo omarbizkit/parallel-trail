@@ -1,0 +1,53 @@
+# GitHub Environments Configuration
+# This file documents the required GitHub environments and secrets
+
+environments:
+  staging:
+    description: "Staging environment for testing deployments"
+    protection_rules:
+      - type: "branch"
+        pattern: "develop"
+      - type: "reviewers"
+        reviewers: ["omarbizkit"]
+    deployment_branch_policy:
+      protected_branches: false
+      custom_branch_policies: true
+    secrets:
+      - name: ZEABUR_API_TOKEN
+        description: "Zeabur API token for staging deployments"
+        required: true
+      - name: ZEABUR_STAGING_PROJECT_ID
+        description: "Zeabur project ID for staging environment"
+        required: true
+      - name: GITHUB_TOKEN
+        description: "GitHub token for container registry access"
+        required: true
+        
+  production:
+    description: "Production environment for live deployments"
+    protection_rules:
+      - type: "branch"
+        pattern: "main"
+      - type: "reviewers"
+        reviewers: ["omarbizkit"]
+      - type: "wait_timer"
+        wait_timer: 300  # 5 minutes
+    deployment_branch_policy:
+      protected_branches: true
+      custom_branch_policies: false
+    secrets:
+      - name: ZEABUR_API_TOKEN
+        description: "Zeabur API token for production deployments"
+        required: true
+      - name: ZEABUR_PROJECT_ID
+        description: "Zeabur project ID for production environment"
+        required: true
+      - name: GITHUB_TOKEN
+        description: "GitHub token for container registry access"
+        required: true
+
+# Repository secrets (not environment-specific)
+repository_secrets:
+  - name: CODECOV_TOKEN
+    description: "Codecov token for coverage reporting"
+    required: false

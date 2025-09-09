@@ -1,0 +1,85 @@
+# Deployment Configuration for Parallel Trail
+
+deployment:
+  # Development settings
+  development:
+    environment: development
+    port: 5173
+    hot_reload: true
+    debug: true
+    
+  # Staging settings  
+  staging:
+    environment: staging
+    port: 8080
+    domain: staging.parallel-trail.zeabur.app
+    ssl: true
+    analytics: false
+    
+  # Production settings
+  production:
+    environment: production
+    port: 8080
+    domain: parallel-trail.zeabur.app
+    ssl: true
+    analytics: true
+    cdn: true
+    compression: true
+
+# Container settings
+container:
+  registry: ghcr.io
+  repository: omarbizkit/parallel-trail
+  platforms:
+    - linux/amd64
+    - linux/arm64
+  
+# Health check settings
+health_check:
+  enabled: true
+  path: /
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  
+# Resource limits
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 0.2
+  limits:
+    memory: 512Mi
+    cpu: 0.5
+    
+# Auto-scaling
+autoscaling:
+  enabled: true
+  min_replicas: 1
+  max_replicas: 3
+  target_cpu_utilization: 70
+  target_memory_utilization: 80
+  
+# Environment variables
+environment_variables:
+  common:
+    NODE_ENV: "${NODE_ENV}"
+    PORT: "${PORT}"
+    
+  development:
+    VITE_APP_ENV: development
+    VITE_API_URL: http://localhost:3001
+    
+  staging:
+    VITE_APP_ENV: staging
+    VITE_API_URL: https://api-staging.parallel-trail.com
+    
+  production:
+    VITE_APP_ENV: production
+    VITE_API_URL: https://api.parallel-trail.com
+    
+# Secrets (to be set in GitHub/GitLab CI)
+secrets:
+  - ZEABUR_API_TOKEN
+  - ZEABUR_PROJECT_ID
+  - ZEABUR_STAGING_PROJECT_ID
+  - GITHUB_TOKEN
