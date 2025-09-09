@@ -44,22 +44,22 @@ export const DEFAULT_RETRO_CONFIG: RetroUIConfig = {
     title: 32,
   },
   colorPalette: {
-    primary: '#00ff00',     // Bright green (main UI)
-    secondary: '#00cc00',   // Darker green
-    accent: '#ffff00',      // Yellow for highlights
-    background: '#000000',  // Pure black
-    text: '#cccccc',        // Light gray for body text
-    disabled: '#666666',    // Gray for disabled elements
-    highlight: '#ffffff',   // White for active selections
-    warning: '#ffaa00',     // Orange for warnings
-    error: '#ff0000',       // Red for errors
-    success: '#00ff00',     // Green for success
+    primary: '#00ff00', // Bright green (main UI)
+    secondary: '#00cc00', // Darker green
+    accent: '#ffff00', // Yellow for highlights
+    background: '#000000', // Pure black
+    text: '#cccccc', // Light gray for body text
+    disabled: '#666666', // Gray for disabled elements
+    highlight: '#ffffff', // White for active selections
+    warning: '#ffaa00', // Orange for warnings
+    error: '#ff0000', // Red for errors
+    success: '#00ff00', // Green for success
   },
   typewriter: {
-    speed: 30,              // 30 characters per second
+    speed: 30, // 30 characters per second
     soundEnabled: true,
     cursorChar: '▮',
-    cursorBlinkSpeed: 500,  // milliseconds
+    cursorBlinkSpeed: 500, // milliseconds
   },
   crtEffect: true,
   scanlines: true,
@@ -86,7 +86,7 @@ export class TypewriterText extends Phaser.GameObjects.Text {
     onComplete?: () => void
   ) {
     super(scene, x, y, '', style);
-    
+
     // Handle overloaded constructor
     if (typeof config === 'function') {
       this.onCompleteCallback = config;
@@ -95,11 +95,11 @@ export class TypewriterText extends Phaser.GameObjects.Text {
       this.config = config || DEFAULT_RETRO_CONFIG.typewriter;
       this.onCompleteCallback = onComplete;
     }
-    
+
     this.fullText = text;
-    
+
     scene.add.existing(this);
-    
+
     if (text) {
       this.startTyping(text, this.onCompleteCallback);
     }
@@ -111,10 +111,10 @@ export class TypewriterText extends Phaser.GameObjects.Text {
     this.isTyping = true;
     this.onCompleteCallback = onComplete;
     this.showCursor = true;
-    
+
     // Clear existing timers
     this.clearTimers();
-    
+
     // Start typewriter effect
     const delay = 1000 / this.config.speed;
     this.typewriterTimer = this.scene.time.addEvent({
@@ -123,7 +123,7 @@ export class TypewriterText extends Phaser.GameObjects.Text {
       callbackScope: this,
       repeat: this.fullText.length - 1,
     });
-    
+
     // Start cursor blinking
     this.cursorTimer = this.scene.time.addEvent({
       delay: this.config.cursorBlinkSpeed,
@@ -137,7 +137,7 @@ export class TypewriterText extends Phaser.GameObjects.Text {
     if (this.currentIndex < this.fullText.length) {
       this.currentIndex++;
       this.updateDisplayText();
-      
+
       // Play typewriter sound if enabled
       if (this.config.soundEnabled) {
         this.playTypeSound();
@@ -148,7 +148,7 @@ export class TypewriterText extends Phaser.GameObjects.Text {
       this.showCursor = false;
       this.clearTimers();
       this.updateDisplayText();
-      
+
       if (this.onCompleteCallback) {
         this.onCompleteCallback();
       }
@@ -164,11 +164,11 @@ export class TypewriterText extends Phaser.GameObjects.Text {
 
   private updateDisplayText(): void {
     let displayText = this.fullText.substring(0, this.currentIndex);
-    
+
     if (this.showCursor && this.isTyping) {
       displayText += this.config.cursorChar;
     }
-    
+
     this.setText(displayText);
   }
 
@@ -177,7 +177,7 @@ export class TypewriterText extends Phaser.GameObjects.Text {
       this.typewriterTimer.destroy();
       this.typewriterTimer = undefined;
     }
-    
+
     if (this.cursorTimer) {
       this.cursorTimer.destroy();
       this.cursorTimer = undefined;
@@ -196,7 +196,7 @@ export class TypewriterText extends Phaser.GameObjects.Text {
       this.showCursor = false;
       this.clearTimers();
       this.updateDisplayText();
-      
+
       if (this.onCompleteCallback) {
         this.onCompleteCallback();
       }
@@ -233,50 +233,50 @@ export class RetroMenu extends Phaser.GameObjects.Container {
     selectionCallback?: (index: number, item: string) => void
   ) {
     super(scene, x, y);
-    
+
     this.config = config;
     this.selectionCallback = selectionCallback;
-    
+
     scene.add.existing(this);
-    
+
     this.createMenu(items);
     this.setupInput();
   }
 
   private createMenu(items: string[]): void {
     let yOffset = 0;
-    
+
     items.forEach((item, index) => {
       const menuItem = this.scene.add.text(20, yOffset, `${index + 1}. ${item}`, {
         fontFamily: this.config.fontFamily,
         fontSize: `${this.config.fontSize.medium}px`,
         color: this.config.colorPalette.text,
       });
-      
+
       menuItem.setInteractive({ useHandCursor: true });
-      
+
       // Mouse events
       menuItem.on('pointerover', () => {
         this.setSelectedIndex(index);
       });
-      
+
       menuItem.on('pointerdown', () => {
         this.selectItem(index);
       });
-      
+
       this.menuItems.push(menuItem);
       this.add(menuItem);
-      
+
       yOffset += 30;
     });
-    
+
     // Create selection indicator
     this.selectionIndicator = this.scene.add.text(0, 0, '▶', {
       fontFamily: this.config.fontFamily,
       fontSize: `${this.config.fontSize.medium}px`,
       color: this.config.colorPalette.highlight,
     });
-    
+
     this.add(this.selectionIndicator);
     this.updateSelectionIndicator();
   }
@@ -284,36 +284,39 @@ export class RetroMenu extends Phaser.GameObjects.Container {
   private setupInput(): void {
     // Keyboard input
     const cursors = this.scene.input.keyboard?.createCursorKeys();
-    const keys = this.scene.input.keyboard?.addKeys('W,S,Enter,Space') as any;
-    
+    const keys = this.scene.input.keyboard?.addKeys('W,S,Enter,Space') as Record<
+      string,
+      Phaser.Input.Keyboard.Key
+    >;
+
     if (cursors) {
       cursors.up.on('down', () => {
         this.setSelectedIndex(Math.max(0, this.selectedIndex - 1));
       });
-      
+
       cursors.down.on('down', () => {
         this.setSelectedIndex(Math.min(this.menuItems.length - 1, this.selectedIndex + 1));
       });
     }
-    
+
     if (keys) {
       keys.W.on('down', () => {
         this.setSelectedIndex(Math.max(0, this.selectedIndex - 1));
       });
-      
+
       keys.S.on('down', () => {
         this.setSelectedIndex(Math.min(this.menuItems.length - 1, this.selectedIndex + 1));
       });
-      
+
       keys.Enter.on('down', () => {
         this.selectCurrentItem();
       });
-      
+
       keys.Space.on('down', () => {
         this.selectCurrentItem();
       });
     }
-    
+
     // Number key shortcuts
     for (let i = 1; i <= 9; i++) {
       this.scene.input.keyboard?.on(`keydown-${i}`, () => {
@@ -330,18 +333,22 @@ export class RetroMenu extends Phaser.GameObjects.Container {
       if (this.selectedIndex >= 0 && this.selectedIndex < this.menuItems.length) {
         this.menuItems[this.selectedIndex].setColor(this.config.colorPalette.text);
       }
-      
+
       this.selectedIndex = index;
-      
+
       // Highlight new item
       this.menuItems[this.selectedIndex].setColor(this.config.colorPalette.highlight);
-      
+
       this.updateSelectionIndicator();
     }
   }
 
   private updateSelectionIndicator(): void {
-    if (this.selectionIndicator && this.selectedIndex >= 0 && this.selectedIndex < this.menuItems.length) {
+    if (
+      this.selectionIndicator &&
+      this.selectedIndex >= 0 &&
+      this.selectedIndex < this.menuItems.length
+    ) {
       const selectedItem = this.menuItems[this.selectedIndex];
       this.selectionIndicator.setY(selectedItem.y);
     }
@@ -355,7 +362,7 @@ export class RetroMenu extends Phaser.GameObjects.Container {
   private selectCurrentItem(): void {
     if (this.selectedIndex >= 0 && this.selectedIndex < this.menuItems.length) {
       const selectedText = this.menuItems[this.selectedIndex].text.replace(/^\d+\.\s*/, '');
-      
+
       if (this.selectionCallback) {
         this.selectionCallback(this.selectedIndex, selectedText);
       }
@@ -371,7 +378,7 @@ export class RetroMenu extends Phaser.GameObjects.Container {
       item.setAlpha(enabled ? 1 : 0.5);
       item.setInteractive(enabled);
     });
-    
+
     if (this.selectionIndicator) {
       this.selectionIndicator.setAlpha(enabled ? 1 : 0.5);
     }
@@ -384,48 +391,48 @@ export class CRTEffect extends Phaser.GameObjects.Graphics {
 
   constructor(scene: Scene, _config: RetroUIConfig = DEFAULT_RETRO_CONFIG) {
     super(scene, { x: 0, y: 0 });
-    
+
     scene.add.existing(this);
-    
+
     if (_config.scanlines) {
       this.createScanlines();
     }
-    
+
     if (_config.glowEffect) {
       this.createGlowEffect();
     }
-    
+
     this.setDepth(1000); // Render on top
   }
 
   private createScanlines(): void {
     this.scanlines = this.scene.add.graphics();
-    
+
     const { width, height } = this.scene.cameras.main;
-    
+
     // Create scanlines
     for (let y = 0; y < height; y += 2) {
       this.scanlines.lineStyle(1, 0x000000, 0.1);
       this.scanlines.lineBetween(0, y, width, y);
     }
-    
+
     this.scanlines.setDepth(999);
   }
 
   private createGlowEffect(): void {
     this.glowGraphics = this.scene.add.graphics();
-    
+
     const { width, height } = this.scene.cameras.main;
-    
+
     // Create subtle glow around edges using simple rectangles with alpha
     this.glowGraphics.fillStyle(0x00ff00, 0.05);
     this.glowGraphics.fillRect(0, 0, width, height);
-    
+
     // Add some edge glow
     this.glowGraphics.fillStyle(0x00ff00, 0.1);
     this.glowGraphics.fillRect(0, 0, 50, height);
     this.glowGraphics.fillRect(width - 50, 0, 50, height);
-    
+
     this.glowGraphics.setDepth(998);
   }
 
@@ -501,6 +508,6 @@ export class UISystem {
   public destroy(): void {
     this.crtEffect?.destroy();
     this.crtEffect = undefined;
-    UISystem.instance = undefined as any;
+    UISystem.instance = undefined as unknown as UISystem;
   }
 }

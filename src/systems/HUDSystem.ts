@@ -192,14 +192,14 @@ export class HUDSystem {
     // Add scanlines effect
     const scanlines = this.scene.add.graphics();
     scanlines.setDepth(1000);
-    
+
     for (let y = 0; y < height; y += 2) {
       scanlines.lineStyle(1, 0x000000, 0.1);
       scanlines.lineBetween(0, y, width, y);
     }
 
     // Add subtle glow to HUD elements
-    this.hudElements.forEach((element) => {
+    this.hudElements.forEach(element => {
       if (element instanceof Phaser.GameObjects.Text) {
         element.setShadow(1, 1, '#00ff00', 1, true, true);
       }
@@ -243,7 +243,7 @@ export class HUDSystem {
     const healthText = this.hudElements.get('healthText');
     if (healthText) {
       healthText.setText(`${playerData.health}/${playerData.maxHealth}`);
-      
+
       // Color based on health percentage
       const healthPercent = playerData.health / playerData.maxHealth;
       if (healthPercent > 0.6) {
@@ -259,16 +259,16 @@ export class HUDSystem {
     if (this.healthBar) {
       const healthPercent = playerData.health / playerData.maxHealth;
       this.healthBar.clear();
-      
+
       // Background
       this.healthBar.fillStyle(0x333333, 0.8);
       this.healthBar.fillRect(20, 40, 150, 20);
-      
+
       // Fill
       const barColor = healthPercent > 0.6 ? 0x00ff00 : healthPercent > 0.3 ? 0xffaa00 : 0xff0000;
       this.healthBar.fillStyle(barColor, 0.9);
       this.healthBar.fillRect(20, 40, 150 * healthPercent, 20);
-      
+
       // Border
       this.healthBar.lineStyle(1, 0x00ff00, 0.8);
       this.healthBar.strokeRect(20, 40, 150, 20);
@@ -285,15 +285,15 @@ export class HUDSystem {
     if (this.energyBar) {
       const energyPercent = playerData.timeEnergy / playerData.maxTimeEnergy;
       this.energyBar.clear();
-      
+
       // Background
       this.energyBar.fillStyle(0x333333, 0.8);
       this.energyBar.fillRect(200, 40, 150, 20);
-      
+
       // Fill
       this.energyBar.fillStyle(0x00ffff, 0.9);
       this.energyBar.fillRect(200, 40, 150 * energyPercent, 20);
-      
+
       // Border
       this.energyBar.lineStyle(1, 0x00ffff, 0.8);
       this.energyBar.strokeRect(200, 40, 150, 20);
@@ -304,7 +304,7 @@ export class HUDSystem {
     const paradoxText = this.hudElements.get('paradoxText');
     if (paradoxText) {
       paradoxText.setText(`${playerData.paradoxRisk}%`);
-      
+
       // Color based on paradox risk
       if (playerData.paradoxRisk > 80) {
         paradoxText.setColor(this.uiSystem.getColorPalette().error);
@@ -319,16 +319,17 @@ export class HUDSystem {
     if (this.paradoxBar) {
       const paradoxPercent = playerData.paradoxRisk / 100;
       this.paradoxBar.clear();
-      
+
       // Background
       this.paradoxBar.fillStyle(0x333333, 0.8);
       this.paradoxBar.fillRect(400, 40, 150, 20);
-      
+
       // Fill
-      const barColor = playerData.paradoxRisk > 80 ? 0xff0000 : playerData.paradoxRisk > 50 ? 0xffaa00 : 0xffff00;
+      const barColor =
+        playerData.paradoxRisk > 80 ? 0xff0000 : playerData.paradoxRisk > 50 ? 0xffaa00 : 0xffff00;
       this.paradoxBar.fillStyle(barColor, 0.9);
       this.paradoxBar.fillRect(400, 40, 150 * paradoxPercent, 20);
-      
+
       // Border
       this.paradoxBar.lineStyle(1, 0xffff00, 0.8);
       this.paradoxBar.strokeRect(400, 40, 150, 20);
@@ -361,14 +362,14 @@ export class HUDSystem {
       backgroundColor: '#000000',
       padding: { x: 20, y: 10 },
     });
-    
+
     notification.setOrigin(0.5, 0.5);
     notification.setDepth(1500);
 
     // Add typewriter effect
     const fullText = notification.text;
     notification.setText('');
-    
+
     let charIndex = 0;
     const typeTimer = this.scene.time.addEvent({
       delay: 50,
@@ -378,7 +379,7 @@ export class HUDSystem {
           notification.setText(fullText.substring(0, charIndex));
         } else {
           typeTimer.destroy();
-          
+
           // Auto-hide after duration
           this.scene?.time.delayedCall(duration, () => {
             this.scene?.tweens.add({
@@ -398,7 +399,7 @@ export class HUDSystem {
     if (!this.scene) return;
 
     const sign = value > 0 ? '+' : '';
-    
+
     this.showNotification(`${effect}: ${sign}${value}`, 2000);
   }
 
@@ -406,15 +407,15 @@ export class HUDSystem {
     if (this.updateTimer) {
       this.updateTimer.destroy();
     }
-    
-    this.hudElements.forEach((element) => {
+
+    this.hudElements.forEach(element => {
       element.destroy();
     });
-    
+
     this.healthBar?.destroy();
     this.energyBar?.destroy();
     this.paradoxBar?.destroy();
-    
-    HUDSystem.instance = undefined as any;
+
+    HUDSystem.instance = undefined as unknown as HUDSystem;
   }
 }
