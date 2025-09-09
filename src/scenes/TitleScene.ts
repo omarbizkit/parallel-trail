@@ -1,81 +1,127 @@
 import { Scene } from 'phaser';
 import { GameState } from '../systems/GameState';
+import { UISystem, TypewriterText, RetroMenu } from '../systems/UISystem';
 
 export class TitleScene extends Scene {
   private gameState: GameState;
+  private uiSystem: UISystem;
+  private titleText?: TypewriterText;
+  private subtitleText?: TypewriterText;
+  private mainMenu?: RetroMenu;
 
   constructor() {
     super({ key: 'TitleScene' });
     this.gameState = GameState.getInstance();
+    this.uiSystem = UISystem.getInstance();
   }
 
   create(): void {
     const { width, height } = this.cameras.main;
 
-    // Title text
-    const titleText = this.add.text(width / 2, height / 3, 'PARALLEL TRAIL', {
-      font: '48px monospace',
-      color: '#00ff00',
-      stroke: '#003300',
-      strokeThickness: 2,
-    });
-    titleText.setOrigin(0.5, 0.5);
+    // Initialize UI system
+    this.uiSystem.initialize(this);
 
-    // Subtitle
-    const subtitleText = this.add.text(
+    // Title text with typewriter effect
+    this.titleText = new TypewriterText(
+      this,
       width / 2,
-      height / 3 + 60,
-      'A Retro Roguelike Deck-Builder',
+      height / 3,
+      'PARALLEL TRAIL',
       {
-        font: '20px monospace',
-        color: '#00cc00',
+        fontSize: '48px',
+        color: this.uiSystem.getColorPalette().primary,
+        align: 'center',
+      },
+      () => {
+        // Start subtitle after title completes
+        this.subtitleText?.startTyping('A Retro Roguelike Deck-Builder');
       }
     );
-    subtitleText.setOrigin(0.5, 0.5);
+    this.titleText.setOrigin(0.5, 0.5);
 
-    // Menu options
+    // Subtitle (initially empty, will be populated after title animation)
+    this.subtitleText = new TypewriterText(
+      this,
+      width / 2,
+      height / 3 + 60,
+      '',
+      {
+        fontSize: '20px',
+        color: this.uiSystem.getColorPalette().secondary,
+        align: 'center',
+      },
+      () => {
+        // Show menu after subtitle completes
+        this.showMainMenu();
+      }
+    );
+    this.subtitleText.setOrigin(0.5, 0.5);
+
+    // Skip intro on any key press or click
+    this.input.keyboard?.on('keydown', () => {
+      if (this.titleText?.isCurrentlyTyping()) {
+        this.titleText.skipTyping();
+      } else if (this.subtitleText?.isCurrentlyTyping()) {
+        this.subtitleText.skipTyping();
+      }
+    });
+
+    this.input.on('pointerdown', () => {
+      if (this.titleText?.isCurrentlyTyping()) {
+        this.titleText.skipTyping();
+      } else if (this.subtitleText?.isCurrentlyTyping()) {
+        this.subtitleText.skipTyping();
+      }
+    });
+  }
+
+  private showMainMenu(): void {
+    const { width, height } = this.cameras.main;
     const hasSaveGame = this.gameState.hasSaveGame();
-    const menuOptions = [
-      { text: 'Start New Game', action: () => this.startNewGame() },
-      { text: 'Continue', action: () => this.continueGame(), enabled: hasSaveGame },
-      { text: 'Settings', action: () => this.openSettings() },
-      { text: 'Credits', action: () => this.showCredits() },
+
+    const menuItems = [
+      'Start New Game',
+      hasSaveGame ? 'Continue' : 'Continue (No Save)',
+      'Settings',
+      'Credits',
     ];
 
-    let yPosition = height / 2 + 40;
-    menuOptions.forEach((option, index) => {
-      const optionText = this.add.text(width / 2, yPosition, `${index + 1}. ${option.text}`, {
-        font: '18px monospace',
-        color: option.enabled !== false ? '#ffffff' : '#666666',
+    this.mainMenu = new RetroMenu(
+      this,
+      width / 2,
+      height / 2 + 40,
+      menuItems,
+      this.uiSystem.getConfig(),
+      (index, item) => {
+        this.handleMenuSelection(index, item);
+      }
+    );
+
+    // Disable continue if no save game
+    if (!hasSaveGame) {
+      this.mainMenu.setEnabled(false);
+      // Re-enable after a brief moment to allow proper initialization
+      this.time.delayedCall(100, () => {
+        this.mainMenu?.setEnabled(true);
       });
-      optionText.setOrigin(0.5, 0.5);
-      optionText.setInteractive({ useHandCursor: true });
+    }
+  }
 
-      if (option.enabled !== false) {
-        optionText.on('pointerover', () => {
-          optionText.setColor('#00ff00');
-        });
-
-        optionText.on('pointerout', () => {
-          optionText.setColor('#ffffff');
-        });
-
-        optionText.on('pointerdown', option.action);
-      }
-
-      yPosition += 40;
-    });
-
-    // Keyboard input
-    this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
-      const key = parseInt(event.key);
-      if (key >= 1 && key <= menuOptions.length) {
-        const option = menuOptions[key - 1];
-        if (option.enabled !== false) {
-          option.action();
-        }
-      }
-    });
+  private handleMenuSelection(index: number, _item: string): void {
+    switch (index) {
+      case 0: // Start New Game
+        this.startNewGame();
+        break;
+      case 1: // Continue
+        this.continueGame();
+        break;
+      case 2: // Settings
+        this.openSettings();
+        break;
+      case 3: // Credits
+        this.showCredits();
+        break;
+    }
   }
 
   startNewGame(): void {

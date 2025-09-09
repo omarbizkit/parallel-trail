@@ -1,13 +1,19 @@
 import { Scene } from 'phaser';
 import { GameState } from '../systems/GameState';
+import { UISystem, RetroMenu, TypewriterText } from '../systems/UISystem';
+import { HUDSystem } from '../systems/HUDSystem';
 
 export class HubScene extends Scene {
   private gameState: GameState;
-  private hudElements: { [key: string]: Phaser.GameObjects.Text } = {};
+  private uiSystem: UISystem;
+  private hudSystem: HUDSystem;
+  private hubDescription?: TypewriterText;
 
   constructor() {
     super({ key: 'HubScene' });
     this.gameState = GameState.getInstance();
+    this.uiSystem = UISystem.getInstance();
+    this.hudSystem = HUDSystem.getInstance();
   }
 
   init(): void {
@@ -18,114 +24,97 @@ export class HubScene extends Scene {
   create(): void {
     const { width, height } = this.cameras.main;
 
-    // Hospital Hub background/description
-    const hubTitle = this.add.text(width / 2, 50, 'Hospital Hub', {
-      font: '32px monospace',
-      color: '#00ff00',
-    });
+    // Initialize UI systems
+    this.uiSystem.initialize(this);
+    this.hudSystem.initialize(this);
+
+    // Hospital Hub title with typewriter effect
+    const hubTitle = new TypewriterText(
+      this,
+      width / 2,
+      50,
+      'HOSPITAL HUB',
+      {
+        fontSize: '32px',
+        color: this.uiSystem.getColorPalette().primary,
+        align: 'center',
+      }
+    );
     hubTitle.setOrigin(0.5, 0.5);
 
-    const hubDescription = this.add.text(
+    // Hub description with typewriter effect
+    this.hubDescription = new TypewriterText(
+      this,
       width / 2,
       120,
       'You awaken in a hospital bed, memories of the crash still fresh.\nThe sterile white walls seem to pulse with an otherworldly energy.',
       {
-        font: '16px monospace',
-        color: '#cccccc',
+        fontSize: '16px',
+        color: this.uiSystem.getColorPalette().text,
         align: 'center',
         wordWrap: { width: width - 100 },
       }
     );
-    hubDescription.setOrigin(0.5, 0.5);
+    this.hubDescription.setOrigin(0.5, 0.5);
 
-    // Hub options
+    // Create hub menu options
     const hubOptions = [
-      { text: 'Review your deck', action: () => this.reviewDeck() },
-      { text: 'Talk to the nurse', action: () => this.talkToNurse() },
-      { text: 'Explore Phoenix', action: () => this.explorePhoenix() },
-      { text: 'Rest and recover', action: () => this.restAndRecover() },
+      'Review your deck',
+      'Talk to the nurse',
+      'Explore Phoenix',
+      'Rest and recover',
     ];
 
-    let yPosition = height / 2;
-    hubOptions.forEach((option, index) => {
-      const optionText = this.add.text(width / 2, yPosition, `${index + 1}. ${option.text}`, {
-        font: '18px monospace',
-        color: '#ffffff',
-      });
-      optionText.setOrigin(0.5, 0.5);
-      optionText.setInteractive({ useHandCursor: true });
-
-      optionText.on('pointerover', () => {
-        optionText.setColor('#00ff00');
-      });
-
-      optionText.on('pointerout', () => {
-        optionText.setColor('#ffffff');
-      });
-
-      optionText.on('pointerdown', option.action);
-
-      yPosition += 40;
-    });
-
-    // Keyboard input
-    this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
-      const key = parseInt(event.key);
-      if (key >= 1 && key <= hubOptions.length) {
-        hubOptions[key - 1].action();
+    new RetroMenu(
+      this,
+      width / 2,
+      height / 2,
+      hubOptions,
+      this.uiSystem.getConfig(),
+      (index, _item) => {
+        this.handleHubMenuSelection(index);
       }
-    });
+    );
 
-    // HUD placeholder
-    this.createHUD();
+    // Show welcome notification
+    this.hudSystem.showNotification('Welcome to the Hospital Hub', 2000);
+  }
+
+  private handleHubMenuSelection(index: number): void {
+    switch (index) {
+      case 0:
+        this.reviewDeck();
+        break;
+      case 1:
+        this.talkToNurse();
+        break;
+      case 2:
+        this.explorePhoenix();
+        break;
+      case 3:
+        this.restAndRecover();
+        break;
+    }
   }
 
   createHUD(): void {
-    const { width } = this.cameras.main;
-    const playerData = this.gameState.getPlayerData();
-    const hudY = 30;
-
-    // Clear existing HUD elements
-    Object.values(this.hudElements).forEach(element => element.destroy());
-    this.hudElements = {};
-
-    // Health
-    this.hudElements.health = this.add.text(20, hudY, `Health: ${playerData.health}/${playerData.maxHealth}`, {
-      font: '14px monospace',
-      color: '#ff0000',
-    });
-
-    // Time Energy
-    this.hudElements.timeEnergy = this.add.text(20, hudY + 20, `Time Energy: ${playerData.timeEnergy}/${playerData.maxTimeEnergy}`, {
-      font: '14px monospace',
-      color: '#00ffff',
-    });
-
-    // Paradox Risk
-    this.hudElements.paradoxRisk = this.add.text(20, hudY + 40, `Paradox Risk: ${playerData.paradoxRisk}%`, {
-      font: '14px monospace',
-      color: '#ffff00',
-    });
-
-    // Deck info
-    this.hudElements.deckInfo = this.add.text(width - 150, hudY, `Deck: ${playerData.deckSize} cards`, {
-      font: '14px monospace',
-      color: '#ffffff',
-    });
-
-    // Day counter
-    this.hudElements.day = this.add.text(width - 150, hudY + 20, `Day: ${playerData.day}`, {
-      font: '14px monospace',
-      color: '#cccccc',
-    });
+    // HUD is now handled by the HUDSystem - no need for manual creation
+    // The HUDSystem is initialized in create() and automatically updates
   }
 
   reviewDeck(): void {
     const { width, height } = this.cameras.main;
-    
+
     // Create a simple deck review overlay
-    const overlay = this.add.rectangle(width / 2, height / 2, width - 100, height - 100, 0x000000, 0.9);
-    
+    const overlay = this.add.rectangle(
+      width / 2,
+      height / 2,
+      width - 100,
+      height - 100,
+      0x000000,
+      0.9
+    );
+
     const title = this.add.text(width / 2, 80, 'DECK REVIEW', {
       font: '24px monospace',
       color: '#00ff00',
@@ -142,13 +131,13 @@ export class HubScene extends Scene {
     // Placeholder card list
     const cardList = [
       'Timecraft: Temporal Shift',
-      'Mind/Resolve: Focused Concentration', 
+      'Mind/Resolve: Focused Concentration',
       'Social: Empathetic Connection',
       'Physical: Quick Reflexes',
       'Timecraft: Paradox Shield',
       'Mind/Resolve: Mental Fortress',
       'Social: Persuasive Argument',
-      'Physical: Endurance Boost'
+      'Physical: Endurance Boost',
     ];
 
     let yPosition = 160;
@@ -175,9 +164,14 @@ export class HubScene extends Scene {
       closeButton.destroy();
       // Destroy all card text elements - we need to track them
       this.children.list.forEach(child => {
-        if (child !== this.children.list[0] && child !== this.children.list[1]) { // Keep hub title and description
+        if (child !== this.children.list[0] && child !== this.children.list[1]) {
+          // Keep hub title and description
           const text = child as Phaser.GameObjects.Text;
-          if (text.text && text.text.includes('.') && cardList.some(card => text.text.includes(card.split(':')[0]))) {
+          if (
+            text.text &&
+            text.text.includes('.') &&
+            cardList.some(card => text.text.includes(card.split(':')[0]))
+          ) {
             child.destroy();
           }
         }
@@ -185,7 +179,7 @@ export class HubScene extends Scene {
     };
 
     closeButton.on('pointerdown', closeDeckReview);
-    
+
     // ESC key to close
     const escKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     escKey?.on('down', closeDeckReview);
@@ -193,32 +187,50 @@ export class HubScene extends Scene {
 
   talkToNurse(): void {
     const { width, height } = this.cameras.main;
-    
+
     // Nurse dialogue data
     const dialogues = [
       {
-        text: "Good morning, Penny. How are you feeling today?",
+        text: 'Good morning, Penny. How are you feeling today?',
         options: [
-          { text: "I'm fine, just confused about what happened.", response: "That's completely normal after an accident. Your memories might be a bit jumbled." },
-          { text: "I keep having these strange dreams...", response: "Sometimes our minds process trauma through dreams. Would you like to talk about them?" },
-          { text: "When can I leave?", response: "We need to run a few more tests first. Patience is important for recovery." }
-        ]
+          {
+            text: "I'm fine, just confused about what happened.",
+            response:
+              "That's completely normal after an accident. Your memories might be a bit jumbled.",
+          },
+          {
+            text: 'I keep having these strange dreams...',
+            response:
+              'Sometimes our minds process trauma through dreams. Would you like to talk about them?',
+          },
+          {
+            text: 'When can I leave?',
+            response: 'We need to run a few more tests first. Patience is important for recovery.',
+          },
+        ],
       },
       {
-        text: "The doctor will be in to see you shortly.",
+        text: 'The doctor will be in to see you shortly.',
         options: [
-          { text: "I feel different since the accident.", response: "In what way? Sometimes head injuries can cause subtle changes." },
-          { text: "Time feels... strange.", response: "Temporal disorientation is common with concussions. It should improve with rest." }
-        ]
-      }
+          {
+            text: 'I feel different since the accident.',
+            response: 'In what way? Sometimes head injuries can cause subtle changes.',
+          },
+          {
+            text: 'Time feels... strange.',
+            response:
+              'Temporal disorientation is common with concussions. It should improve with rest.',
+          },
+        ],
+      },
     ];
 
     // Select random dialogue
     const dialogue = dialogues[Math.floor(Math.random() * dialogues.length)];
-    
+
     // Create dialogue overlay
     const overlay = this.add.rectangle(width / 2, height - 150, width - 40, 200, 0x000000, 0.95);
-    
+
     const nurseName = this.add.text(30, height - 230, 'NURSE:', {
       font: '16px monospace',
       color: '#00ff00',
@@ -239,7 +251,7 @@ export class HubScene extends Scene {
         color: '#cccccc',
       });
       optionText.setInteractive({ useHandCursor: true });
-      
+
       optionText.on('pointerover', () => {
         optionText.setColor('#00ff00');
       });
@@ -251,10 +263,10 @@ export class HubScene extends Scene {
       optionText.on('pointerdown', () => {
         // Show response
         dialogueText.setText(option.response);
-        
+
         // Remove options
         optionButtons.forEach(btn => btn.destroy());
-        
+
         // Add continue button
         const continueBtn = this.add.text(width - 100, height - 60, 'Continue', {
           font: '14px monospace',
@@ -273,7 +285,7 @@ export class HubScene extends Scene {
       nurseName.destroy();
       dialogueText.destroy();
       optionButtons.forEach(btn => btn.destroy());
-      
+
       // Find and destroy continue button if it exists
       const continueBtn = this.children.list.find(child => {
         const text = child as Phaser.GameObjects.Text;
