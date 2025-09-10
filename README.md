@@ -8,6 +8,9 @@ A retro-styled roguelike deck-builder web game set in Phoenix, Arizona. Follow P
 - **Deck-Building**: Collect and manage cards across four categories (Timecraft, Mind/Resolve, Social, Physical)
 - **Combat System**: Turn-based card combat with enemy intent telegraphing
 - **Roguelike Elements**: Procedural events, permadeath with meta-progression
+- **Character System**: Play as Penelope "Penny" Torres with modifiable character name system
+- **Global Score Tracking**: Server-maintained global scores with multiple categories and leaderboards
+- **Storage Abstraction**: Support for file/PostgreSQL/Supabase backends with easy switching
 - **Narrative Branching**: Multiple endings based on choices across timeline loops
 - **Phoenix Setting**: Explore real-world locations (Roosevelt Row, South Mountain, Tempe Town Lake)
 
@@ -139,11 +142,30 @@ The project is configured for deployment to **Zeabur.com** using container-based
 
 ## 📋 Development Status
 
-- ✅ **Phase 1**: Specification Complete
-- ✅ **Phase 2**: Planning Complete  
-- 🚧 **Phase 3**: Development In Progress
-  - ✅ Task 6: Combat Scene Implementation Complete
-- ⏳ **Phase 4**: Testing & Deployment
+### 🚧 Current Phase: Development In Progress
+
+#### ✅ Completed Tasks
+- **Task 6**: Combat Scene Implementation Complete - Turn-based card combat system with enemy intent telegraphing
+- **Task 7**: Player Character System Complete - Enhanced player entity with modifiable character names, storage abstraction, and global score tracking
+
+#### 📋 Task Summary
+- **Task 1**: Specification Complete - Game design document and technical specifications completed
+- **Task 2**: Planning Complete - Project structure and development workflow established
+- **Task 3**: Core Framework Complete - Basic game engine and UI system setup
+- **Task 4**: Retro UI System Complete - Text-based interface with CRT effects and retro styling
+- **Task 5**: Deck System Foundation Complete - Card management and draw/discards mechanics
+- **Task 6**: Combat Scene & Conflict System Complete - Interactive battle system with enemy AI
+- **Task 7**: Player Character System Complete - Player entity with meta-progression and storage
+
+#### ⏳ Upcoming Tasks
+- **Task 8**: Procedural Event System - Dynamic event generation and content variety
+- **Task 9**: Phoenix Location Content - Location-specific events and narrative content
+
+### 📊 Current Status
+- ✅ **Phase 1**: Specification & Planning Complete  
+- ✅ **Phase 2**: Core Systems Complete
+- 🚧 **Phase 3**: Gameplay Systems In Progress
+- ⏳ **Phase 4**: Content & Polish (Upcoming)
 
 ## 📝 License
 

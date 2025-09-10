@@ -1,4 +1,5 @@
 import { DeckSystem } from './DeckSystem';
+import { Player } from '../entities/Player';
 import type { CardPlayResult } from '../types/CardTypes';
 
 export interface PlayerData {
@@ -25,7 +26,9 @@ export class GameState {
   private static instance: GameState;
   private gameProgress: GameProgress;
   private deckSystem: DeckSystem;
+  private player!: Player;
   private saveKey = 'parallel-trail-save';
+  private isPlayerInitialized: boolean = false;
 
   private constructor() {
     this.gameProgress = this.createDefaultGameState();
@@ -64,6 +67,40 @@ export class GameState {
 
   public setPlayerData(data: Partial<PlayerData>): void {
     this.gameProgress.playerData = { ...this.gameProgress.playerData, ...data };
+  }
+
+  /**
+   * Player entity methods for enhanced character system
+   */
+  public getPlayer(): Player {
+    return this.player;
+  }
+
+  public isPlayerEntityReady(): boolean {
+    return this.isPlayerInitialized;
+  }
+
+  /**
+   * Sync game progress with player entity data
+   */
+  public syncWithPlayerEntity(): void {
+    if (!this.isPlayerInitialized) {
+      console.warn('Player entity not initialized, skipping sync');
+      return;
+    }
+
+    // Only sync from player entity to game progress for backward compatibility
+    const playerData = this.player.getData();
+    this.gameProgress.playerData = {
+      health: playerData.health,
+      maxHealth: playerData.maxHealth,
+      timeEnergy: playerData.timeEnergy,
+      maxTimeEnergy: playerData.maxTimeEnergy,
+      paradoxRisk: playerData.paradoxRisk,
+      deckSize: playerData.deckSize,
+      currentLocation: playerData.currentLocation,
+      day: playerData.day,
+    };
   }
 
   public getCurrentScene(): string {
