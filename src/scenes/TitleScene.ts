@@ -34,7 +34,11 @@ export class TitleScene extends Scene {
       },
       () => {
         // Start subtitle after title completes
-        this.subtitleText?.startTyping('A Retro Roguelike Deck-Builder');
+        if (this.subtitleText) {
+          this.subtitleText.startTyping('A Retro Roguelike Deck-Builder');
+        } else {
+          this.showMainMenu();
+        }
       }
     );
     this.titleText.setOrigin(0.5, 0.5);
@@ -63,6 +67,9 @@ export class TitleScene extends Scene {
         this.titleText.skipTyping();
       } else if (this.subtitleText?.isCurrentlyTyping()) {
         this.subtitleText.skipTyping();
+      } else {
+        // If neither is typing, show menu directly
+        this.showMainMenu();
       }
     });
 
@@ -71,6 +78,16 @@ export class TitleScene extends Scene {
         this.titleText.skipTyping();
       } else if (this.subtitleText?.isCurrentlyTyping()) {
         this.subtitleText.skipTyping();
+      } else {
+        // If neither is typing, show menu directly
+        this.showMainMenu();
+      }
+    });
+
+    // Fallback timer - show menu after 5 seconds regardless
+    this.time.delayedCall(5000, () => {
+      if (!this.mainMenu) {
+        this.showMainMenu();
       }
     });
   }
@@ -86,24 +103,24 @@ export class TitleScene extends Scene {
       'Credits',
     ];
 
-    this.mainMenu = new RetroMenu(
+    // Create proper RetroMenu using UISystem
+    this.mainMenu = this.uiSystem.createMenu(
       this,
-      width / 2,
-      height / 2 + 40,
+      width / 2 - 100,
+      height / 2 + 60,
       menuItems,
-      this.uiSystem.getConfig(),
       (index, item) => {
+        // Only allow continue if save exists
+        if (index === 1 && !hasSaveGame) {
+          return; // Do nothing for disabled continue option
+        }
         this.handleMenuSelection(index, item);
       }
     );
 
-    // Disable continue if no save game
+    // Disable continue option if no save exists
     if (!hasSaveGame) {
-      this.mainMenu.setEnabled(false);
-      // Re-enable after a brief moment to allow proper initialization
-      this.time.delayedCall(100, () => {
-        this.mainMenu?.setEnabled(true);
-      });
+      this.mainMenu.setEnabled(true); // Keep menu enabled but handle individually
     }
   }
 

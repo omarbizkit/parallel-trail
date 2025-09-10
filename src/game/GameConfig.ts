@@ -9,9 +9,13 @@ export const gameConfig: Types.Core.GameConfig = {
   render: {
     pixelArt: true,
     antialias: false,
+    mipmapFilter: 'NEAREST', // Prevent mipmap generation warnings
   },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  audio: {
+    disableWebAudio: false, // Allow WebAudio but handle gracefully
   },
 };

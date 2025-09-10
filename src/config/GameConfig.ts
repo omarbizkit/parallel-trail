@@ -18,17 +18,19 @@ export const STORAGE_CONFIG = {
     metaProgressionPath: './data/meta-progression.json',
   },
   postgresql: {
-    host: process.env.PG_HOST || 'localhost',
-    port: parseInt(process.env.PG_PORT || '5432'),
-    database: process.env.PG_DATABASE || 'parallel_trail',
-    username: process.env.PG_USERNAME || 'postgres',
-    password: process.env.PG_PASSWORD || '',
-    ssl: process.env.NODE_ENV === 'production',
+    host: (typeof process !== 'undefined' ? process.env.PG_HOST : undefined) || 'localhost',
+    port: parseInt((typeof process !== 'undefined' ? process.env.PG_PORT : undefined) || '5432'),
+    database:
+      (typeof process !== 'undefined' ? process.env.PG_DATABASE : undefined) || 'parallel_trail',
+    username: (typeof process !== 'undefined' ? process.env.PG_USERNAME : undefined) || 'postgres',
+    password: (typeof process !== 'undefined' ? process.env.PG_PASSWORD : undefined) || '',
+    ssl: (typeof process !== 'undefined' ? process.env.NODE_ENV : undefined) === 'production',
   },
   supabase: {
-    url: process.env.SUPABASE_URL || '',
-    anonKey: process.env.SUPABASE_ANON_KEY || '',
-    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+    url: (typeof process !== 'undefined' ? process.env.SUPABASE_URL : undefined) || '',
+    anonKey: (typeof process !== 'undefined' ? process.env.SUPABASE_ANON_KEY : undefined) || '',
+    serviceRoleKey:
+      (typeof process !== 'undefined' ? process.env.SUPABASE_SERVICE_ROLE_KEY : undefined) || '',
   },
 } as const;
 

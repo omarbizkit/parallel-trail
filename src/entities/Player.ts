@@ -189,10 +189,6 @@ export class Player {
     // For now, add a small score bonus
     this.metaProgression.totalScore += 50;
   }
-    // TODO: Implement random unlock logic based on meta-progression
-    // For now, add a small score bonus
-    this.metaProgression.totalScore += 50;
-  }
 
   /**
    * Achievement system
@@ -207,7 +203,11 @@ export class Player {
   /**
    * Global score tracking
    */
-  async saveGameScore(category: string, score: number, gameData?: any): Promise<void> {
+  async saveGameScore(
+    category: string,
+    score: number,
+    gameData?: Record<string, unknown>
+  ): Promise<void> {
     if (!GLOBAL_SCORES_CONFIG.enabled) {
       return;
     }

@@ -52,11 +52,12 @@ export class BootScene extends Scene {
       percentText.destroy();
     });
 
-    // Load assets here
-    this.load.image('logo', 'src/assets/images/logo.png');
+    // Skip loading problematic PNG files - create programmatically instead
+    this.load.on('fileerror', (file: Phaser.Loader.File) => {
+      console.warn(`Failed to load asset: ${file.key} from ${file.src}`);
+    });
 
-    // Load UI assets
-    this.load.image('pixel', 'src/assets/images/pixel.png');
+    // We'll create all textures programmatically to avoid WebGL format issues
 
     // TODO: Load additional assets as they become available
     // this.load.image('background', 'src/assets/images/background.png');
@@ -67,11 +68,90 @@ export class BootScene extends Scene {
   create(): void {
     this.loadingState.assetsLoaded = true;
 
+    // Create fallback assets if originals failed to load
+    this.createFallbackAssets();
+
     // Add a small delay for better user experience
     this.time.delayedCall(500, () => {
+      console.log('BootScene: Preparing to transition to TitleScene');
       this.loadingState.transitionReady = true;
       this.transitionToTitleScene();
     });
+  }
+
+  private createFallbackAssets(): void {
+    // Always create programmatic textures to avoid WebGL format issues
+    this.createProgrammaticTextures();
+  }
+
+  private createProgrammaticTextures(): void {
+    try {
+      // Create a clean white pixel texture
+      const pixelCanvas = this.createPixelCanvas();
+      this.textures.addCanvas('pixel', pixelCanvas);
+
+      // Create a simple logo placeholder
+      const logoCanvas = this.createLogoCanvas();
+      this.textures.addCanvas('logo', logoCanvas);
+
+      // Configure these textures to prevent WebGL warnings
+      this.configureTextureFiltering();
+    } catch (error) {
+      console.error('BootScene: Error creating programmatic textures:', error);
+    }
+  }
+
+  private configureTextureFiltering(): void {
+    // Set texture filtering to prevent mipmap generation warnings
+    const textures = ['pixel', 'logo'];
+    textures.forEach(textureKey => {
+      try {
+        if (this.textures.exists(textureKey)) {
+          const texture = this.textures.get(textureKey);
+          if (texture && texture.source[0]) {
+            // Disable mipmapping and set to nearest neighbor filtering
+            const source = texture.source[0];
+            source.setFilter(Phaser.Textures.FilterMode.NEAREST);
+            console.log(`BootScene: Configured filtering for ${textureKey}`);
+          }
+        }
+      } catch (error) {
+        console.warn(`BootScene: Failed to configure filtering for ${textureKey}:`, error);
+      }
+    });
+  }
+
+  private createPixelCanvas(): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    canvas.width = 2; // Power of 2 to avoid WebGL warnings
+    canvas.height = 2;
+    const context = canvas.getContext('2d', { alpha: true });
+    if (context) {
+      // Create a clean white pixel with proper alpha
+      context.clearRect(0, 0, 2, 2);
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, 2, 2);
+    }
+    return canvas;
+  }
+
+  private createLogoCanvas(): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64; // Power of 2 dimensions
+    canvas.height = 64;
+    const context = canvas.getContext('2d', { alpha: true });
+    if (context) {
+      // Clear the canvas
+      context.clearRect(0, 0, 64, 64);
+
+      // Create a simple logo placeholder - green text on transparent background
+      context.fillStyle = '#00ff00';
+      context.font = '12px monospace';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText('PT', 32, 32);
+    }
+    return canvas;
   }
 
   transitionToTitleScene(): void {
