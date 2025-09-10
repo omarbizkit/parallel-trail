@@ -46,25 +46,75 @@ export class HUDSystem {
 
     const { width } = this.scene.cameras.main;
 
-    // Create HUD background panel
-    const hudBackground = this.scene.add.rectangle(0, 0, width, 120, 0x000000, 0.8);
+    // Create HUD background panel (moved down to avoid title overlap)
+    const hudBackground = this.scene.add.rectangle(0, 140, width, 100, 0x000000, 0.8);
     hudBackground.setOrigin(0, 0);
     hudBackground.setDepth(500);
 
-    // Health section (left)
-    this.createHealthSection(20, 20);
+    // Create section separators for better visual grouping
+    this.createSectionSeparators();
 
-    // Time Energy section (center-left)
-    this.createEnergySection(200, 20);
+    // Calculate refined spacing with consistent padding
+    const sectionSpacing = 200; // 160px content + 40px padding between sections
+    const startX = 30; // Increased left padding for better visual balance
 
-    // Paradox Risk section (center-right)
-    this.createParadoxSection(400, 20);
+    // Status bar sections (left area - three bars)
+    this.createHealthSection(startX, 160);
+    this.createEnergySection(startX + sectionSpacing, 160);
+    this.createParadoxSection(startX + sectionSpacing * 2, 160);
 
-    // Deck and Day info (right)
-    this.createInfoSection(width - 150, 20);
+    // Info section (right area - DECK/DAY)
+    const infoX = width - 200; // Fixed right alignment for info
+    this.createInfoSection(infoX, 160);
 
     // Add CRT overlay effect
     this.addCRTEffects();
+  }
+
+  private createSectionSeparators(): void {
+    if (!this.scene) return;
+
+    const { width } = this.scene.cameras.main;
+
+    // Create subtle background border for status bar areas
+    const backgroundGraphics = this.scene.add.graphics();
+    backgroundGraphics.lineStyle(1, 0x00cc00, 0.15); // Green color for retro aesthetic
+    backgroundGraphics.fillStyle(0x000000, 0.2);
+
+    // Draw background rectangles for better visual separation
+    const infoAreaX = width - 220;
+    backgroundGraphics.fillRect(15, 155, 585, 33); // Status bar area background
+    backgroundGraphics.strokeRoundedRect(15, 155, 585, 33, 2); // Status bar area border
+
+    backgroundGraphics.fillRect(infoAreaX - 5, 145, 185, 85); // Info area background
+    backgroundGraphics.strokeRoundedRect(infoAreaX - 5, 145, 185, 85, 2); // Info area border
+    backgroundGraphics.setDepth(499);
+
+    // Vertical separator between status bars and info section
+    const separatorX = infoAreaX;
+    const separatorGraphics = this.scene.add.graphics();
+    separatorGraphics.lineStyle(1, 0x00cc00, 0.4);
+    separatorGraphics.lineBetween(separatorX - 10, 155, separatorX - 10, 190);
+    separatorGraphics.setDepth(501);
+
+    // Horizontal separator between HUD background and screen
+    const hSeparatorGraphics = this.scene.add.graphics();
+    hSeparatorGraphics.lineStyle(1, 0x00cc00, 0.3);
+    hSeparatorGraphics.lineBetween(10, 155, width - 10, 155); // Top separator
+    hSeparatorGraphics.lineBetween(10, 188, width - 10, 188); // Bottom separator
+    hSeparatorGraphics.setDepth(501);
+
+    // Add small indicators for bar sections
+    const indicatorGraphics = this.scene.add.graphics();
+    indicatorGraphics.lineStyle(1, 0x00ff00, 0.5);
+
+    // Section indicators above bars
+    const barPositions = [35, 235, 435]; // Center of each bar section
+    barPositions.forEach(x => {
+      indicatorGraphics.lineBetween(x + 5, 138, x + 15, 138); // Short horizontal lines
+      indicatorGraphics.lineBetween(x + 10, 138, x + 10, 143); // Small vertical marker
+    });
+    indicatorGraphics.setDepth(501);
   }
 
   private createHealthSection(x: number, y: number): void {
@@ -72,21 +122,21 @@ export class HUDSystem {
 
     const palette = this.uiSystem.getColorPalette();
 
-    // Health label with retro styling
-    const healthLabel = this.scene.add.text(x, y, 'HEALTH', {
+    // Health label with retro styling (positioned above bar)
+    const healthLabel = this.scene.add.text(x, y - 25, 'HEALTH', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
       fontSize: '14px',
       color: palette.error,
     });
     this.hudElements.set('healthLabel', healthLabel);
 
-    // Health bar background
+    // Health bar background (spaced below label)
     this.healthBar = this.scene.add.graphics();
     this.healthBar.fillStyle(0x333333, 0.8);
-    this.healthBar.fillRect(x, y + 20, 150, 20);
+    this.healthBar.fillRect(x, y, 150, 20);
 
-    // Health value text
-    const healthText = this.scene.add.text(x + 155, y + 20, '', {
+    // Health value text (aligned with bar)
+    const healthText = this.scene.add.text(x + 155, y + 2, '', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
       fontSize: '12px',
       color: palette.text,
@@ -99,21 +149,21 @@ export class HUDSystem {
 
     const palette = this.uiSystem.getColorPalette();
 
-    // Time Energy label
-    const energyLabel = this.scene.add.text(x, y, 'TIME ENERGY', {
+    // Time Energy label (positioned above bar)
+    const energyLabel = this.scene.add.text(x, y - 25, 'TIME ENERGY', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
       fontSize: '14px',
       color: palette.primary,
     });
     this.hudElements.set('energyLabel', energyLabel);
 
-    // Energy bar background
+    // Energy bar background (spaced below label)
     this.energyBar = this.scene.add.graphics();
     this.energyBar.fillStyle(0x333333, 0.8);
-    this.energyBar.fillRect(x, y + 20, 150, 20);
+    this.energyBar.fillRect(x, y, 150, 20);
 
-    // Energy value text
-    const energyText = this.scene.add.text(x + 155, y + 20, '', {
+    // Energy value text (aligned with bar)
+    const energyText = this.scene.add.text(x + 155, y + 2, '', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
       fontSize: '12px',
       color: palette.text,
@@ -126,21 +176,21 @@ export class HUDSystem {
 
     const palette = this.uiSystem.getColorPalette();
 
-    // Paradox Risk label
-    const paradoxLabel = this.scene.add.text(x, y, 'PARADOX RISK', {
+    // Paradox Risk label (positioned above bar)
+    const paradoxLabel = this.scene.add.text(x, y - 25, 'PARADOX RISK', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
       fontSize: '14px',
       color: palette.accent,
     });
     this.hudElements.set('paradoxLabel', paradoxLabel);
 
-    // Paradox bar background
+    // Paradox bar background (spaced below label)
     this.paradoxBar = this.scene.add.graphics();
     this.paradoxBar.fillStyle(0x333333, 0.8);
-    this.paradoxBar.fillRect(x, y + 20, 150, 20);
+    this.paradoxBar.fillRect(x, y, 150, 20);
 
-    // Paradox value text
-    const paradoxText = this.scene.add.text(x + 155, y + 20, '', {
+    // Paradox value text (aligned with bar)
+    const paradoxText = this.scene.add.text(x + 155, y + 2, '', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
       fontSize: '12px',
       color: palette.text,
@@ -153,35 +203,58 @@ export class HUDSystem {
 
     const palette = this.uiSystem.getColorPalette();
 
-    // Deck info
-    const deckLabel = this.scene.add.text(x, y, 'DECK', {
+    // Create a subtle background box for the info section
+    const infoBackground = this.scene.add.graphics();
+    infoBackground.lineStyle(1, 0x00cc00, 0.4);
+    infoBackground.fillStyle(0x000000, 0.3);
+    infoBackground.fillRoundedRect(x - 8, y - 30, 170, 85, 2);
+    infoBackground.strokeRoundedRect(x - 8, y - 30, 170, 85, 2);
+    infoBackground.setDepth(499);
+
+    // DECK section - left aligned within the info box
+    const deckLabel = this.scene.add.text(x, y - 20, 'DECK:', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
-      fontSize: '14px',
+      fontSize: '12px',
       color: palette.secondary,
     });
     this.hudElements.set('deckLabel', deckLabel);
 
-    const deckInfo = this.scene.add.text(x, y + 20, '', {
+    const deckValue = this.scene.add.text(x + 45, y - 20, '', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
       fontSize: '12px',
-      color: palette.text,
+      color: palette.accent,
     });
-    this.hudElements.set('deckInfo', deckInfo);
+    this.hudElements.set('deckValue', deckValue);
 
-    // Day counter
-    const dayLabel = this.scene.add.text(x, y + 45, 'DAY', {
+    // DAY section - right aligned within the info box
+    const dayLabel = this.scene.add.text(x, y + 5, 'DAY:', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
-      fontSize: '14px',
+      fontSize: '12px',
       color: palette.secondary,
     });
     this.hudElements.set('dayLabel', dayLabel);
 
-    const dayCounter = this.scene.add.text(x, y + 65, '', {
+    const dayValue = this.scene.add.text(x + 40, y + 5, '', {
       fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
       fontSize: '12px',
       color: palette.text,
     });
-    this.hudElements.set('dayCounter', dayCounter);
+    this.hudElements.set('dayValue', dayValue);
+
+    // Current time/location - formatted consistently
+    const locationLabel = this.scene.add.text(x, y + 30, 'LOCATION:', {
+      fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
+      fontSize: '10px',
+      color: palette.disabled,
+    });
+    this.hudElements.set('locationLabel', locationLabel);
+
+    const locationValue = this.scene.add.text(x, y + 42, 'HOSPITAL HUB', {
+      fontFamily: DEFAULT_RETRO_CONFIG.fontFamily,
+      fontSize: '11px',
+      color: palette.primary,
+    });
+    this.hudElements.set('locationValue', locationValue);
   }
 
   private addCRTEffects(): void {
@@ -260,18 +333,18 @@ export class HUDSystem {
       const healthPercent = playerData.health / playerData.maxHealth;
       this.healthBar.clear();
 
-      // Background
+      // Background (using consistent spacing)
       this.healthBar.fillStyle(0x333333, 0.8);
-      this.healthBar.fillRect(20, 40, 150, 20);
+      this.healthBar.fillRect(30, 160, 150, 20);
 
       // Fill
       const barColor = healthPercent > 0.6 ? 0x00ff00 : healthPercent > 0.3 ? 0xffaa00 : 0xff0000;
       this.healthBar.fillStyle(barColor, 0.9);
-      this.healthBar.fillRect(20, 40, 150 * healthPercent, 20);
+      this.healthBar.fillRect(30, 160, 150 * healthPercent, 20);
 
       // Border
       this.healthBar.lineStyle(1, 0x00ff00, 0.8);
-      this.healthBar.strokeRect(20, 40, 150, 20);
+      this.healthBar.strokeRect(30, 160, 150, 20);
     }
   }
 
@@ -286,17 +359,17 @@ export class HUDSystem {
       const energyPercent = playerData.timeEnergy / playerData.maxTimeEnergy;
       this.energyBar.clear();
 
-      // Background
+      // Background (using consistent spacing)
       this.energyBar.fillStyle(0x333333, 0.8);
-      this.energyBar.fillRect(200, 40, 150, 20);
+      this.energyBar.fillRect(230, 160, 150, 20);
 
       // Fill
       this.energyBar.fillStyle(0x00ffff, 0.9);
-      this.energyBar.fillRect(200, 40, 150 * energyPercent, 20);
+      this.energyBar.fillRect(230, 160, 150 * energyPercent, 20);
 
       // Border
       this.energyBar.lineStyle(1, 0x00ffff, 0.8);
-      this.energyBar.strokeRect(200, 40, 150, 20);
+      this.energyBar.strokeRect(230, 160, 150, 20);
     }
   }
 
@@ -320,31 +393,31 @@ export class HUDSystem {
       const paradoxPercent = playerData.paradoxRisk / 100;
       this.paradoxBar.clear();
 
-      // Background
+      // Background (using consistent spacing)
       this.paradoxBar.fillStyle(0x333333, 0.8);
-      this.paradoxBar.fillRect(400, 40, 150, 20);
+      this.paradoxBar.fillRect(430, 160, 150, 20);
 
       // Fill
       const barColor =
         playerData.paradoxRisk > 80 ? 0xff0000 : playerData.paradoxRisk > 50 ? 0xffaa00 : 0xffff00;
       this.paradoxBar.fillStyle(barColor, 0.9);
-      this.paradoxBar.fillRect(400, 40, 150 * paradoxPercent, 20);
+      this.paradoxBar.fillRect(430, 160, 150 * paradoxPercent, 20);
 
       // Border
       this.paradoxBar.lineStyle(1, 0xffff00, 0.8);
-      this.paradoxBar.strokeRect(400, 40, 150, 20);
+      this.paradoxBar.strokeRect(430, 160, 150, 20);
     }
   }
 
   private updateInfoSection(playerData: PlayerData): void {
-    const deckInfo = this.hudElements.get('deckInfo');
-    if (deckInfo) {
-      deckInfo.setText(`${playerData.deckSize} cards`);
+    const deckValue = this.hudElements.get('deckValue');
+    if (deckValue) {
+      deckValue.setText(`${playerData.deckSize} CARDS`);
     }
 
-    const dayCounter = this.hudElements.get('dayCounter');
-    if (dayCounter) {
-      dayCounter.setText(`${playerData.day}`);
+    const dayValue = this.hudElements.get('dayValue');
+    if (dayValue) {
+      dayValue.setText(`${playerData.day}`);
     }
   }
 

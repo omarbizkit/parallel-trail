@@ -22,25 +22,25 @@ export class HubScene extends Scene {
   }
 
   create(): void {
-    const { width, height } = this.cameras.main;
+    const { width } = this.cameras.main;
 
     // Initialize UI systems
     this.uiSystem.initialize(this);
     this.hudSystem.initialize(this);
 
-    // Hospital Hub title with typewriter effect
-    const hubTitle = new TypewriterText(this, width / 2, 50, 'HOSPITAL HUB', {
+    // Hospital Hub title with typewriter effect (positioned above HUD)
+    const hubTitle = new TypewriterText(this, width / 2, 80, 'HOSPITAL HUB', {
       fontSize: '32px',
       color: this.uiSystem.getColorPalette().primary,
       align: 'center',
     });
     hubTitle.setOrigin(0.5, 0.5);
 
-    // Hub description with typewriter effect
+    // Hub description with typewriter effect (positioned below HUD with safety margin)
     this.hubDescription = new TypewriterText(
       this,
       width / 2,
-      120,
+      280, // Moved down to ensure no overlap with HUD (HUD ends at y=240)
       'You awaken in a hospital bed, memories of the crash still fresh.\nThe sterile white walls seem to pulse with an otherworldly energy.',
       {
         fontSize: '16px',
@@ -59,10 +59,15 @@ export class HubScene extends Scene {
       'Rest and recover',
     ];
 
+    // Position menu with safe distance from description
+    const descriptionBottomY = 280 + 40; // Description text position + estimated height
+    const menuSafetyMargin = 60; // Safe margin above menu
+    const menuY = descriptionBottomY + menuSafetyMargin;
+
     new RetroMenu(
       this,
       width / 2,
-      height / 2,
+      menuY, // Dynamically positioned with safe spacing
       hubOptions,
       this.uiSystem.getConfig(),
       (index, _item) => {
